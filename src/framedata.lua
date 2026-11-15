@@ -183,6 +183,22 @@ require(framedata_meta_file_path)
 -- # Frame data
 frame_data = {}
 
+debug_toast_text = nil
+debug_toast_timer = 0
+
+function show_debug_toast(_text, _duration)
+  debug_toast_text = _text
+  debug_toast_timer = _duration or 120
+end
+
+function draw_debug_toast()
+  if debug_toast_timer and debug_toast_timer > 0 then
+    local _w = get_text_width(debug_toast_text)
+    gui.text(screen_width / 2 - _w / 2, 2, debug_toast_text, text_default_color, text_default_border_color)
+    debug_toast_timer = debug_toast_timer - 1
+  end
+end
+
 function save_frame_data()
   for _key, _value in ipairs(characters) do
     if frame_data[_value].dirty then
