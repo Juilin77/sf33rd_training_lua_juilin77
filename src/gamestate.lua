@@ -6,6 +6,10 @@ player_objects = {}
 P1 = nil
 P2 = nil
 
+-- attacker characters using the loop-aware resync below (Issue #29), enabled one character at a
+-- time as each is verified in-game; every other character keeps the original resync
+resync_nearest_run_characters = { ryu = true, ken = true, gouki = true }
+
 -- # api
 function make_input_set(_value)
   return {
@@ -520,6 +524,10 @@ function read_player_vars(_player_obj)
       local _resync_range_begin = -1
       local _resync_range_end = -1
       local _resync_target = -1
+      -- contiguous runs of matching frames (1-based, inclusive). A looping animation shows the
+      -- same frame identity once per iteration, so the global begin/end range below would span
+      -- every loop and a one-frame correction would jump to the last iteration (Issue #29)
+      local _runs = {}
 
       for _i = 1, _frame_count do
         local _frame_index = _i
@@ -528,12 +536,44 @@ function read_player_vars(_player_obj)
           if _resync_range_begin == -1 then
             _resync_range_begin = _frame_index
           end
+          if #_runs == 0 or _runs[#_runs].last ~= _frame_index - 1 then
+            table.insert(_runs, { first = _frame_index, last = _frame_index })
+          else
+            _runs[#_runs].last = _frame_index
+          end
           _resync_range_end = _frame_index
         end
       end
 
+      if #_runs > 1 and resync_nearest_run_characters[_player_obj.char_str] then
+        -- repeated identity: stay in the iteration nearest the current position (zero-based
+        -- distances), preferring the run ahead on a tie since the tracker slips behind after a freeze
+        local _current = _player_obj.relevant_animation_frame
+        local _best_run = nil
+        local _best_distance = 0
+        local _best_is_ahead = false
+        for _, _run in ipairs(_runs) do
+          local _distance = 0
+          local _is_ahead = false
+          if _current < _run.first - 1 then
+            _distance = (_run.first - 1) - _current
+            _is_ahead = true
+          elseif _current > _run.last - 1 then
+            _distance = _current - (_run.last - 1)
+          end
+          if _best_run == nil or _distance < _best_distance or (_distance == _best_distance and _is_ahead and not _best_is_ahead) then
+            _best_run = _run
+            _best_distance = _distance
+            _best_is_ahead = _is_ahead
+          end
+        end
+        if _best_is_ahead then
+          _resync_target = _best_run.first
+        else
+          _resync_target = _best_run.last
+        end
       -- if behind, always go th the range begin, else go at end unless it has been wrapping
-      if _resync_range_begin >= 0 then
+      elseif _resync_range_begin >= 0 then
         if _player_obj.relevant_animation_frame < _resync_range_begin then
           _resync_target = _resync_range_begin
         else
