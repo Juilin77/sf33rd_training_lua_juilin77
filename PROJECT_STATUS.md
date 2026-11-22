@@ -17,6 +17,12 @@ below actually describe. Updating this file is itself a commit after this one, s
 this file's own latest commit as equal to `verified_code_commit`; run `git log -1 --
 PROJECT_STATUS.md` for that (`status_source_commit`).
 
+## Verification boundary
+Everything below describes the published releases up to v0.36 (tag `v0.36`, commit `27d9a03`;
+`1e54da2` is an ancestor of that tag). Later commits on `master`, other branches and open pull
+requests are not covered by this file: they have not been released and no verification claim is
+made for them. This file's "Last verified" date was not advanced when it was trimmed.
+
 ## Completed since last update
 - v0.32: Fixed three Frame Table bugs found during a single bug hunt — the first captured cell
   disappearing after a savestate reload, a jump's first frame missing a pre-classify gate, and
@@ -45,8 +51,8 @@ PROJECT_STATUS.md` for that (`status_source_commit`).
 - v0.36: Added a Gouki Air Down K jump-apex timing trainer (Special Training mode: per-jump
   pre-drawn timeline, traveling pointer, success / too-early / too-late outcome readout) and a
   matching Display tab reference line (Issue #37, closed via PR #38). Went through 4 rounds of
-  in-game iteration with the maintainer plus win-codex POST-implementation review (APPROVED after
-  two revision rounds, catching a pointer-color/outcome-logic mismatch and two documentation
+  in-game iteration with the maintainer plus an independent post-implementation review (approved
+  after two revision rounds, catching a pointer-color/outcome-logic mismatch and two documentation
   inaccuracies). Also fixed two small pre-existing documentation gaps found along the way:
   Denjin Hadoken was missing from README's Main Features, and the Follow Character docs wrongly
   listed 720 mode as grayed out
@@ -60,11 +66,11 @@ verified in-game by the maintainer against Frame Table's own frame count across 
 rounds (stale-value flash, fill direction, tick positions, off-by-one frame count, counting
 through superfreeze/projectile flight, savestate-reload staleness). The blocked_hit_count reset
 fix's SA-activation half is a reviewed, low-risk addition; its projectile-listening half has a
-known residual risk (see Open work / Issue #15) accepted as-is by the maintainer, not separately
+known residual risk (see Issue #15) accepted as-is by the maintainer, not separately
 verified in-game yet. v0.35's Issue #34 fix was tested extensively in-game by the maintainer
 (hit1, hits 2-7, sides swapped, Red Parry N=1/N=2, nonzero residual cooldown, a whiff, and an
-ordinary non-super attack as a regression check) and independently code-reviewed by win-codex
-(APPROVED after one revision round). The other fixes bundled into v0.35 (Issues #8, #26, #28)
+ordinary non-super attack as a regression check) and independently code-reviewed
+(approved after one revision round). The other fixes bundled into v0.35 (Issues #8, #26, #28)
 were each verified and reviewed at the time of their own merge, prior to this release pass — see
 their respective PR history for that record, not repeated here.
 - v0.36's Air Down K trainer was verified in-game by the maintainer across both jump types
@@ -97,33 +103,21 @@ through the real engine, not something to keep re-solving differently.
 Long-term goal and tracking issue: #41 (every character/move using Block/Parry/Red Parry
 correctly through this engine, except where the limitation above applies).
 
-## Open work
-- GitHub Issue #7 (open): Makoto SA2 (force_recording carry) — Parry never triggers, all hits
-  land as a block instead
-- GitHub Issue #15 (open): the blocked_hit_count reset's projectile-listening rising edge isn't
-  a fully reliable new-attack boundary for multi-hit projectiles with hitbox gaps between hits;
-  needs redesigning to key off attack identity/lifecycle instead
-- GitHub Issue #22 (open): Gouki SA1 gets hit unblocked when projectile-correction block is active
-- GitHub Issue #23 (open): audit other multi-hit projectiles for the cooldown+hold admission gap
-  already fixed for Gouki 5B
-- GitHub Issue #24 (open): investigate whether melee multi-hit moves need their own
-  cooldown-style admission fix
-- GitHub Issue #29 (open): Tatsumaki/hurricane-kick family — phantom block admission on
-  non-connecting hit slots
-- GitHub Issue #31 (open): Chun-Li EX-kick extension moves missing frame_data
-- GitHub Issue #32 (open): PRIMARY admission occasionally grants near-zero timing margin after
-  a freeze/hitstop stall
-- GitHub Issue #41 (open, epic): tracks the items above plus the long-term goal of universal
-  Parry/Red Parry coverage via the prediction engine — see Architecture section above
-- Dummy Blocking: Makoto SA3 (power-up mode) not yet verified
-- SA Blocking systemic fix: Ryu SA2 and Elena SA2 still need migrating to the offset-table
-  approach, plus roughly 9 more characters not yet covered
-- Follow Character for Tech Throw: implemented but commented out, pending a per-character
-  push-box-height calculation
+## Limitations and open work
+This file no longer copies the open-issue list, which goes stale. Current state lives in:
+- Open issues: https://github.com/Juilin77/sf33rd_training_lua_juilin77/issues
+- Pull requests: https://github.com/Juilin77/sf33rd_training_lua_juilin77/pulls
+- Release history: the Changelog section of `README.md` and the repository tags
 
-## Next priorities
-Not yet ordered as a sequence, but the maintainer's current long-term focus is Issue #41
-(universal Parry/Red Parry coverage via the prediction engine) — see Architecture section above.
+Long-term goal and tracking issue: #41 (universal Parry/Red Parry coverage through the prediction
+engine; see the architecture section above for the known hard limit).
 
-## Open questions (public-safe)
-None currently.
+Known limitations that shipped as-is, as of v0.36 (none verified again since):
+- The projectile-listening half of the `blocked_hit_count` reset is not a fully reliable
+  new-attack boundary for multi-hit projectiles (Issue #15).
+- Dummy Blocking: Makoto SA3 (power-up mode) is not verified.
+- SA Blocking systemic fix: Ryu SA2 and Elena SA2 are not yet migrated to the offset-table
+  approach, and roughly 9 more characters are not yet covered.
+- Follow Character for Tech Throw is implemented but commented out, pending a per-character
+  push-box-height calculation.
+- The Air Down K trainer's mash-misattribution case is documented and not fixed (see v0.36 above).

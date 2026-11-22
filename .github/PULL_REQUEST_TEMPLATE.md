@@ -25,10 +25,11 @@ section via a `[win-codex Review]`-prefixed PR comment, not by editing this temp
 
 ## Review status
 
-- PRE_IMPLEMENTATION_REVIEW: <link to the file in AI-Workspace/reviews/...>
-- POST_IMPLEMENTATION_REVIEW: <link to the file in AI-Workspace/reviews/...>
+- PRE review: <link to the review comment on the linked Issue, or one line explaining why a small, well-understood fix needed none>
+- POST review: <link to the review comment on this PR, with the reviewed head and base SHAs>
+- Test evidence: <manual test steps and results, as in Proof above, or what remains untested>
 - `win-codex` review: see PR comments prefixed `[win-codex Review]` (not a native GitHub
-  approval — see AGENTS.md)
+  approval, it is a review comment only)
 - Head SHA at last review: `<sha>` — re-verify this matches the PR's current head SHA
   before requesting merge approval; if it doesn't, the review is stale.
 
